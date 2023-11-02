@@ -1,4 +1,4 @@
-from llms.baidu_llm import predict
+from llms.local import predict
 
 u_score_prompt = '''You are a dictionary.
 You rate the word in terms of frequency of use, from 0 to 10, with 0 indicating not commonly used, and 10 indicating very commonly used.

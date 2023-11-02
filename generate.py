@@ -32,20 +32,19 @@ def rating_and_explaining(source: str):
         output = source.replace(".wc.json", "")
         output = output + ".re.json"
 
-        word_dictionary = dict()
-        for word in word_collection:
-            try:
-                ret = llm_dictionary.feed(word)
-                print(ret)
-                if ret is None:
-                    continue
-            except Exception as e:
-                import traceback
-                logging.warning(f"{word} comes an exception {traceback.format_exception(e)}")
         with open(output, "w") as fp:
-            fp.write(json.dumps(word_dictionary))
+            for word in word_collection:
+                try:
+                    ret = llm_dictionary.feed(word)
+                    fp.write(json.dumps(ret))
+                    if ret is None:
+                        continue
+                except Exception as e:
+                    import traceback
+                    logging.warning(f"{word} comes an exception {traceback.format_exception(e)}")
 
-        return output, word_dictionary
+
+        return output
 
 
 def run():

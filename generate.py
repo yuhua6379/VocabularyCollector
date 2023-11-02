@@ -48,10 +48,14 @@ def rating_and_explaining(source: str):
         return output, word_dictionary
 
 
-if __name__ == '__main__':
+def run():
     conf()
     path = 'resources./friends_scripts_10_seasons.pdf'
     output, word_collection = extract_word_collection(path)
     print(f"we've got {len(word_collection)} words from file '{path}'!")
 
-    output, word_dictionary = rating_and_explaining(output)
+    output, _ = rating_and_explaining(output)
+    print("save to", output)
+
+if __name__ == '__main__':
+    run()

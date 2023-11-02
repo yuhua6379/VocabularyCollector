@@ -43,7 +43,6 @@ def rating_and_explaining(source: str):
                     import traceback
                     logging.warning(f"{word} comes an exception {traceback.format_exception(e)}")
 
-
         return output
 
 

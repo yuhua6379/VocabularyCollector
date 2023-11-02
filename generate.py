@@ -48,7 +48,7 @@ def rating_and_explaining(source: str):
 
 def run():
     conf()
-    path = 'resources./friends_scripts_10_seasons.pdf'
+    path = './resources/friends_scripts_10_seasons.pdf'
     output, word_collection = extract_word_collection(path)
     print(f"we've got {len(word_collection)} words from file '{path}'!")
 

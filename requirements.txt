@@ -7,4 +7,5 @@ transformers
 accelerate
 bitsandbytes
 transformers[sentencepiece]
-websocket-client
+pydantic
+sqlalchemy

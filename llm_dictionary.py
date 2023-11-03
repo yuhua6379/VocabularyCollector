@@ -1,4 +1,4 @@
-from llms.local import predict
+from llms.baidu_llm import predict, VERSION
 
 u_score_prompt = '''You are a dictionary.
 You rate the word in terms of frequency of use, from 0 to 10, with 0 indicating not commonly used, and 10 indicating very commonly used.
@@ -40,11 +40,8 @@ answer: 0 / reason: I've learned that before.
 answer: '''
 
 e_score_prompt = '''You rate the word in terms of being an English word, from 0 to 10, with 0 indicating not an English word at all, and 10 indicating absolutely an English word.
-You're now going to rate 9 words.
+You're now going to rate 8 words.
 When you see [LAST ONE], the next word is your last word, then you only write one word.
-
-Baidu
-answer: 0 / reason: It's a Chinese company.
 
 D.O.A
 answer: 10 / reason: It's an abbreviation of dead on arrival.
@@ -117,19 +114,19 @@ def get_score(score_source: str):
 def eng_word_score(word):
     prompt = e_score_prompt.format(word=word)
     result = predict(prompt)
-    return int(result)
+    return int(result.split("/")[0]), result.split("/")[1]
 
 
 def worth_to_learn_score(word):
     prompt = w_score_prompt.format(word=word)
     result = predict(prompt)
-    return int(result)
+    return int(result.split("/")[0]), result.split("/")[1]
 
 
 def usual_word_score(word):
     prompt = u_score_prompt.format(word=word)
     result = predict(prompt)
-    return int(result)
+    return int(result.split("/")[0]), result.split("/")[1]
 
 
 def spell_format(word):
@@ -157,19 +154,32 @@ def examples(word):
 
 
 def feed(word: str, th=3) -> dict:
-    e_score = eng_word_score(word)
+    e_score, e_reason = eng_word_score(word)
+    ret = dict()
     if e_score <= th:
-        return None
-    else:
-        ret = dict()
         ret['e_score'] = e_score
-        ret['w_score'] = worth_to_learn_score(word)
-        ret['u_score'] = usual_word_score(word)
+        ret['e_reason'] = e_reason
+        ret['w_score'], ret['w_reason'] = "", ""
+        ret['u_score'], ret['u_reason'] = "", ""
+
+        ret['pronounce'] = ""
+        ret['meaning'] = ""
+        ret['examples'] = ""
+        # ret['word'] = spell_format(word)
+        ret['word'] = word
+        ret['version'] = VERSION
+    else:
+
+        ret['e_score'] = e_score
+        ret['e_reason'] = e_reason
+        ret['w_score'], ret['w_reason'] = worth_to_learn_score(word)
+        ret['u_score'], ret['u_reason'] = usual_word_score(word)
 
         ret['pronounce'] = pronounce(word)
         ret['meaning'] = meaning(word)
         ret['examples'] = examples(word)
         # ret['word'] = spell_format(word)
         ret['word'] = word
+        ret['version'] = VERSION
 
-        return ret
+    return ret

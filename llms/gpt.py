@@ -1,7 +1,7 @@
 import openai
 import os
 openai.api_key = os.environ["openai_key"]
-
+VERSION = "GPT"
 
 def predict(prompt):
     completion = openai.ChatCompletion.create(
@@ -11,5 +11,5 @@ def predict(prompt):
         ]
     )
 
-    ret = completion.choices[0].message
-    return ret["content"]
+    ret = completion.choices[0]
+    return ret.message.content

@@ -46,8 +46,10 @@ import json, os
 API_KEY = os.environ["ba"]
 SECRET_KEY = os.environ["bs"]
 
+VERSION = "BAIDU"
+
 def predict(content):
-    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/bloomz_7b1?access_token=" + get_access_token()
+    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions?access_token=" + get_access_token()
 
     payload = json.dumps({
         "user_id": "2",
@@ -67,6 +69,7 @@ def predict(content):
 
     return json.loads(response.text)["result"].strip()
 
+
 def get_access_token():
     """
     使用 AK，SK 生成鉴权签名（Access Token）
@@ -75,6 +78,7 @@ def get_access_token():
     url = "https://aip.baidubce.com/oauth/2.0/token"
     params = {"grant_type": "client_credentials", "client_id": API_KEY, "client_secret": SECRET_KEY}
     return str(requests.post(url, params=params).json().get("access_token"))
+
 
 if __name__ == '__main__':
     prompt = "You are an excellent English teacher.\nFor 'Oooooh', you need to rate the word in terms of necessity to memorize, from 0 to 10, with 0 indicating not necessary or not worth learning at all, and 10 indicating very worth learning.\nYour reply should only be an integer, without explaining the reason.\n"

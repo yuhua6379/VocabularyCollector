@@ -8,6 +8,7 @@ class WordModel(OrmBaseModel, Base):
     english_score = Column(Integer, nullable=False)
     worth_score = Column(Integer, nullable=False)
     usual_score = Column(Integer, nullable=False)
+    word = Column(String(100), nullable=True, unique=True, default="")
 
     english_reason = Column(String(10000), nullable=True, unique=False, default="")
     worth_reason = Column(String(10000), nullable=True, unique=False, default="")
@@ -18,6 +19,5 @@ class WordModel(OrmBaseModel, Base):
     pronounce = Column(String(200), nullable=True, unique=False, default="")
     meaning = Column(String(10000), nullable=True, unique=False, default="")
     examples = Column(String(10000), nullable=True, unique=False, default="")
-    word = Column(String(100), nullable=True, unique=True, default="")
 
     prefix = Column(String(100), nullable=True, unique=False, default="")

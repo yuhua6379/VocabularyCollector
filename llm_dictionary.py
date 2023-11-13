@@ -1,4 +1,4 @@
-from llms.baidu_llm import predict, VERSION
+from llms.ali_llm import predict, VERSION
 
 u_score_prompt = '''You are a dictionary.
 You rate the word in terms of frequency of use, from 0 to 10, with 0 indicating not commonly used, and 10 indicating very commonly used.
@@ -46,8 +46,8 @@ When you see [LAST ONE], the next word is your last word, then you only write on
 D.O.A
 answer: 10 / reason: It's an abbreviation of dead on arrival.
 
-EMO
-answer: 10 / reason: It's an abbreviation.
+hump
+answer: 10 / reason: It's an English word.
 
 Bonjour
 answer: 0 / reason: It's how they say hello in French.

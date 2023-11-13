@@ -6,6 +6,13 @@ import json
 import llm_dictionary
 from datasource.config import rdbms_instance
 from datasource.rdbms.entities import WordModel
+import queue
+import threading
+
+# 创建输入和输出队列
+input_queue = queue.Queue(100)
+output_queue = queue.Queue()
+
 
 def extract_word_collection(source: str):
     output = source + ".wc.json"
@@ -23,7 +30,6 @@ def extract_word_collection(source: str):
 
 
 def has_word(session, word):
-
     filter_ = session.query(WordModel)
     filter_ = filter_.filter(WordModel.word == word)
     results = filter_.all()
@@ -52,6 +58,25 @@ def add_word(session, ret, prefix):
     session.commit()
 
 
+# 定义消费者函数，从输入队列获取消息，然后将处理后的消息放入输出队列
+def consumer():
+    while True:
+        try:
+            with rdbms_instance.get_session() as session:
+                word, prefix = input_queue.get()
+                if prefix == "__STOP__":
+                    return
+                try:
+                    ret = llm_dictionary.feed(word)
+                    add_word(session, ret, prefix)
+                except:
+                    import traceback
+                    traceback.print_exc()
+
+        except queue.Empty:
+            break
+
+
 def rating_and_explaining(source: str):
     if source.find(".wc.json") == -1:
         raise RuntimeError(f"source file ({source}) has error format which needs '*.wc.json'")
@@ -61,22 +86,17 @@ def rating_and_explaining(source: str):
         word_collection = json.loads(fp.read())
 
         for word in word_collection:
-            try:
-                with rdbms_instance.get_session() as session:
-                    if has_word(session, word):
-                        # 跳过已经写入的word
-                        print("skip", word)
-                        continue
-                    print("dealing", word)
-                    ret = llm_dictionary.feed(word)
-                    if ret is None:
-                        continue
+            with rdbms_instance.get_session() as session:
+                if has_word(session, word):
+                    # 跳过已经写入的word
+                    print("skip", word)
+                    continue
+                print("dealing", word)
+                # ret = llm_dictionary.feed(word)
+                input_queue.put((word, prefix))
 
-                    add_word(session, ret, prefix)
-
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
+    for i in range(100):
+        input_queue.put((None, "__STOP__"))
 
 
 def run():
@@ -85,8 +105,17 @@ def run():
     output, word_collection = extract_word_collection(path)
     print(f"we've got {len(word_collection)} words from file '{path}'!")
 
+    # 创建并启动消费者线程
+    consumer_threads = []
+    for i in range(3):  # 创建n个消费者线程
+        thread = threading.Thread(target=consumer)
+        thread.start()
+        consumer_threads.append(thread)
+
     output, _ = rating_and_explaining(output)
-    print("save to", output)
+
+    for thread in consumer_threads:
+        thread.join()
 
 
 if __name__ == '__main__':
